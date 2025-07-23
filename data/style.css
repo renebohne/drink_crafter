@@ -1,0 +1,140 @@
+/* Drink Crafter Dark Theme */
+
+:root {
+    --primary-bg: #111827; /* Very Dark Blue/Gray */
+    --secondary-bg: #1f2937; /* Dark Blue/Gray */
+    --tertiary-bg: #374151; /* Medium Blue/Gray */
+    --border-color: #4b5563; /* Gray */
+    --text-primary: #f9fafb; /* Almost White */
+    --text-secondary: #d1d5db; /* Light Gray */
+    --accent-color: #3b82f6; /* Blue */
+    --accent-hover: #2563eb;
+    --success-color: #16a34a;
+    --warning-color: #f59e0b;
+    --danger-color: #dc2626;
+}
+
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+.card {
+    background-color: var(--secondary-bg);
+    border-color: var(--border-color);
+}
+
+.card-header {
+    background-color: var(--tertiary-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: bold;
+}
+
+.nav-tabs {
+    border-bottom-color: var(--border-color);
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+    border-color: transparent;
+    border-bottom-color: var(--border-color);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--text-primary);
+    background-color: var(--secondary-bg);
+    border-color: var(--border-color);
+    border-bottom-color: var(--secondary-bg);
+}
+
+.list-group-item {
+    background-color: var(--tertiary-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.badge.bg-secondary {
+    background-color: var(--border-color) !important;
+}
+
+.form-control, .form-select {
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+
+.input-group-text {
+    background-color: var(--tertiary-bg);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: var(--tertiary-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    border-color: var(--border-color);
+}
+
+.btn-success { background-color: var(--success-color); border-color: var(--success-color); }
+.btn-warning { background-color: var(--warning-color); border-color: var(--warning-color); }
+.btn-danger { background-color: var(--danger-color); border-color: var(--danger-color); }
+
+.form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.progress {
+    background-color: var(--tertiary-bg);
+}
+
+.modal-content {
+    background-color: var(--secondary-bg);
+    border-color: var(--border-color);
+}
+
+.modal-header, .modal-footer {
+    border-bottom-color: var(--border-color);
+    border-top-color: var(--border-color);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+#status-indicator { height: 20px; width: 20px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px; }
+.recipe-btn {
+    height: 90px;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.nav-link svg { margin-right: 8px; }
+.form-switch .form-check-label { font-weight: 500; }
+.ingredient-list {
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.8;
+    margin-top: 4px;
+    line-height: 1.2;
+}

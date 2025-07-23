@@ -49,14 +49,6 @@ bool handleFileRead(String path) {
     return false; // If the file doesn't exist, return false
 }
 
-
-// --- Route Handler Prototypes ---
-void handleSetSettings(); void handleSetVolumes();
-void handleStartDosing(); void handleStop(); void handleStatus();
-void handleRunRecipe(); void handleCalibratePump();
-void handlePumpControl(); void handleResetCounters();
-void handleRecipes();
-
 void setupWebServer() {
     // SPIFFS is now initialized in main.cpp
 
@@ -79,6 +71,10 @@ void setupWebServer() {
     server.on("/bootstrap.bundle.min.js", HTTP_GET, []() {
         logRequest();
         handleFileRead("/bootstrap.bundle.min.js");
+    });
+    server.on("/style.css", HTTP_GET, []() {
+        logRequest();
+        handleFileRead("/style.css");
     });
      server.on("/favicon.ico", HTTP_GET, [](){
         logRequest();
@@ -198,7 +194,7 @@ void handleSetSettings() {
         newPumps[i].calibration = pumpsArray[i]["calibration"].as<unsigned long>();
         newPumps[i].assignedRelay = pumpsArray[i]["assignedRelay"].as<int>();
     }
-    updatePumpSettings(newPumps); // *** CORRECTED FUNCTION NAME ***
+    updatePumpSettings(newPumps);
     server.send(200, "text/plain", "OK");
 }
 
