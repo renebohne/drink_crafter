@@ -136,17 +136,15 @@ void setupPumps() {
     }
 
     preferences.begin(PREFERENCES_NAMESPACE, true);
-    // Check if the first recipe key exists in preferences.
     bool recipesExistInPrefs = preferences.isKey("r_json_0");
     preferences.end();
     
-    // If no recipes are in preferences, it's a first boot or a reset.
     if (!recipesExistInPrefs) {
         initializeFirstBootSettings();
     }
 
     loadPumpSettings();
-    loadRecipes(); // Load the now-populated recipes from Preferences
+    loadRecipes();
     loadCounters();
     Serial.println("Pumps & Recipes initialized.");
 }

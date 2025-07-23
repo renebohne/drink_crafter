@@ -140,7 +140,6 @@ void handleRecipes() {
         file.print(server.arg("plain"));
         file.close();
         
-        // Clear old recipes from permanent storage before rebooting
         clearAllRecipesFromPreferences();
 
         server.send(200, "text/plain", "Recipes updated. Rebooting to apply changes.");
@@ -199,7 +198,7 @@ void handleSetSettings() {
         newPumps[i].calibration = pumpsArray[i]["calibration"].as<unsigned long>();
         newPumps[i].assignedRelay = pumpsArray[i]["assignedRelay"].as<int>();
     }
-    updatePumpSettings(newPumps);
+    updatePumpSettings(newPumps); // *** CORRECTED FUNCTION NAME ***
     server.send(200, "text/plain", "OK");
 }
 

@@ -79,7 +79,7 @@ function render() {
         volInputs.innerHTML = volHtml;
     }
 
-    // --- Update values on every render (respecting focus) ---
+    // --- Update values on every render (only for dynamic elements) ---
     let anyPumpOn = false;
     recipeList.innerHTML = '';
     statsList.innerHTML = '';
@@ -89,18 +89,7 @@ function render() {
         if (relayState === 1) anyPumpOn = true;
 
         const toggle = document.getElementById(`pump-toggle-${i}`);
-        if (document.activeElement !== toggle) {
-            toggle.checked = relayState === 1;
-        }
-
-        const nameInput = document.getElementById(`name-${i}`);
-        if (document.activeElement !== nameInput) nameInput.value = pump.name;
-
-        const calInput = document.getElementById(`cal-${i}`);
-        if (document.activeElement !== calInput) calInput.value = pump.calibration;
-
-        const relaySelect = document.getElementById(`relay-${i}`);
-        if (document.activeElement !== relaySelect) relaySelect.value = pump.assignedRelay;
+        toggle.checked = relayState === 1;
     });
 
     document.getElementById('all-pumps-toggle').checked = anyPumpOn;
@@ -172,6 +161,7 @@ async function apiPost(endpoint, body) {
         const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         if (!response.ok) throw new Error(await response.text());
         // After a successful post, we fetch the status again to get the latest saved data.
+        // This will now correctly repopulate the settings form with the saved values.
         await fetchStatus();
         return true;
     } catch (e) { console.error(e); alert(`Error: ${e.message}`); return false; }
@@ -226,6 +216,7 @@ function saveSettings() {
             assignedRelay: assignedRelay
         });
     }
+    // After saving, the fetchStatus() in apiPost will repopulate the form with the new saved values.
     apiPost('/settings', { pumps: newPumps });
 }
 
