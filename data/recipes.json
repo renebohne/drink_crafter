@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Screwdriver",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Vodka", "volume": 50 },
+          { "pump": "Orange Juice", "volume": 150 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Pina Colada",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Rum", "volume": 60 },
+          { "pump": "Pineapple Juice", "volume": 90 },
+          { "pump": "Coconut Milk", "volume": 30 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Tequila & Juice",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Tequila", "volume": 60 },
+          { "pump": "Orange Juice", "volume": 75 },
+          { "pump": "Pineapple Juice", "volume": 75 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Daiquiri",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Rum", "volume": 60 },
+          { "pump": "Lime Juice", "volume": 30 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Margarita",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Tequila", "volume": 60 },
+          { "pump": "Lime Juice", "volume": 30 },
+          { "pump": "Orange Juice", "volume": 15 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Vodka Lime Splash",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Vodka", "volume": 50 },
+          { "pump": "Lime Juice", "volume": 20 },
+          { "pump": "Pineapple Juice", "volume": 100 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Sea Breeze",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Vodka", "volume": 40 },
+          { "pump": "Pineapple Juice", "volume": 120 }
+        ]
+      },
+      {
+        "actions": [
+          { "pump": "Grenadine", "volume": 10 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Tropical Punch",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Rum", "volume": 50 },
+          { "pump": "Orange Juice", "volume": 50 },
+          { "pump": "Pineapple Juice", "volume": 50 },
+          { "pump": "Lime Juice", "volume": 15 }
+        ]
+      },
+      {
+        "actions": [
+          { "pump": "Grenadine", "volume": 10 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Tequila Sunrise",
+    "steps": [
+      {
+        "actions": [
+          { "pump": "Tequila", "volume": 60 },
+          { "pump": "Orange Juice", "volume": 120 }
+        ]
+      },
+      {
+        "actions": [
+          { "pump": "Grenadine", "volume": 15 }
+        ]
+      }
+    ]
+  }
+]

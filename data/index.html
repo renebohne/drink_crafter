@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Crafter</title>
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; } .container { max-width: 900px; } .card-header { font-weight: bold; }
+        .relay-btn { width: 100%; margin-bottom: 10px; } .form-control-sm { max-width: 120px; }
+        #status-indicator { height: 20px; width: 20px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px; }
+        #status-text { vertical-align: middle; } .nav-tabs .nav-link { cursor: pointer; }
+        .recipe-btn {
+            height: 80px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        .nav-link svg { margin-right: 8px; }
+        .form-switch .form-check-label { font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>Drink Crafter Control Panel</span>
+                <div><span id="status-text">Idle</span><div id="status-indicator" class="bg-secondary"></div></div>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#recipes-panel" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cup-straw" viewBox="0 0 16 16"><path d="M8.25 0a.25.25 0 0 1 .25.25V3.825a3.483 3.483 0 0 1 .38 1.98c0 .346-.048.682-.138 1a3.01 3.01 0 0 1 .342 1.385c0 .495-.128.96-.358 1.365a4.498 4.498 0 0 1-.522 1.032c.245.198.468.44.65.727a.247.247 0 0 1-.318.375C8.427 11.532 8 11.223 8 10.833c0-.346.23-.641.568-.817a4.5 4.5 0 0 1 .522-1.032 3.01 3.01 0 0 1 .358-1.365 3.01 3.01 0 0 1-.342-1.385c0-.68-.129-1.32-.38-1.98V.25A.25.25 0 0 1 8.25 0Z"/><path d="M7.382 1.193a.5.5 0 0 1 .236.638L6.435 5.56a.5.5 0 0 1-.84.235l-.23-.383a.5.5 0 0 1 .638-.764L7 5.013l.382-1.194Z"/><path d="m13.624 12.622-1.33-2.66a.5.5 0 0 1 .222-.667l.273-.136a.5.5 0 0 1 .667.222l1.33 2.66a.5.5 0 0 1-.222.667l-.273.136a.5.5 0 0 1-.667-.222Z"/><path d="M12.733 11.231 11.4 8.57a.5.5 0 0 1 .222-.667l.273-.136a.5.5 0 0 1 .667.222l1.33 2.66a.5.5 0 0 1-.222.667l-.273.136a.5.5 0 0 1-.667-.222Z"/><path d="M11.842 9.84-10.51 7.184a.5.5 0 0 1 .222-.667l.273-.136a.5.5 0 0 1 .667.222l1.33 2.66a.5.5 0 0 1-.222.667l-.273.136a.5.5 0 0 1-.667-.222Z"/><path d="M14 12.5a2.5 2.5 0 0 1-2.43-2.941c.253.189.473.428.654.714a.5.5 0 0 1-.318.375C11.427 10.532 11 10.223 11 9.833c0-.346.23-.641.568-.817.142-.085.29-.166.44-.24A2.5 2.5 0 0 1 14 7.5c1.38 0 2.5 1.62 2.5 3.5S15.38 14.5 14 14.5h-1c-1.1 0-2-.9-2-2 0-.396.118-.765.318-1.077l.196.327a.5.5 0 0 1-.433.728H2.25a.25.25 0 0 0 0 .5h8.633a.5.5 0 0 1 .433.728l-.196.327C11.118 11.735 11 11.396 11 11c0 .733.409 1.333 1 1.5a.5.5 0 0 1 0 1c-.591-.167-1-.767-1-1.5 0-.396.118-.765.318-1.077l.196.327a.5.5 0 0 1-.433.728H2.25a.25.25 0 0 0 0 .5h8.633a.5.5 0 0 1 .433.728l-.196.327C11.118 12.735 11 12.396 11 12c0 1.1.9 2 2 2h1a2.5 2.5 0 0 0 2.5-2.5c0-.99-1.82-3.5-2.5-3.5-1.1 0-2.5 2.51-2.5 3.5a.5.5 0 0 1-1 0c0-1.62.914-4.233 3.5-4.233C15.938 8.267 17 10.22 17 11s-1.062 2.733-2.5 2.733H14Z"/></svg>Cocktails</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#control-panel" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16"><path d="M8 4.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM11.5 4a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-1 0V4.5a.5.5 0 0 1 .5-.5zM4.5 4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5zM11.5 8a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zm-7 4a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5z"/></svg>Control</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings-panel" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.858 2.929 2.929 0 0 1 0 5.858z"/></svg>Settings</button></li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="recipes-panel" role="tabpanel">
+                        <div class="card my-3"><div class="card-header">Select a Cocktail</div><div class="card-body">
+                            <div class="row" id="recipe-list"></div>
+                        </div></div>
+                    </div>
+                    <div class="tab-pane fade" id="control-panel" role="tabpanel">
+                        <div class="card my-3"><div class="card-header">Direct Pump Control</div><div class="card-body">
+                            <div class="form-check form-switch mb-3 border-bottom pb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="all-pumps-toggle" onchange="toggleAllPumps()">
+                                <label class="form-check-label" for="all-pumps-toggle">All Pumps</label>
+                            </div>
+                            <div id="pump-controls">
+                                <!-- JS will generate content here -->
+                            </div>
+                        </div></div>
+                        <div class="card my-3"><div class="card-header">Manual Dosing</div><div class="card-body">
+                            <div id="volume-inputs" class="mb-3"></div>
+                            <button class="btn btn-primary" onclick="setVolumes()">Set Volumes</button><hr>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-success" onclick="startDosing()">START MANUAL DOSING</button>
+                                <button class="btn btn-danger" onclick="stopSequence()">STOP ALL</button>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="tab-pane fade" id="settings-panel" role="tabpanel">
+                        <div class="card my-3"><div class="card-header">Pump Settings</div><div class="card-body">
+                            <div id="settings-inputs" class="mb-3"></div>
+                            <button class="btn btn-info" onclick="saveSettings()">Save All Settings</button>
+                        </div></div>
+                        <div class="card my-3"><div class="card-header">Pump Calibration</div><div class="card-body">
+                            <p class="text-muted small">Press a button to run the pump for 10 seconds, then enter the measured volume in the box next to it. The `ms/ml` value above will be calculated automatically.</p>
+                            <div id="calibration-controls">
+                                <!-- JS will generate content here -->
+                            </div>
+                        </div></div>
+                        <div class="card my-3"><div class="card-header">Statistics & Maintenance</div><div class="card-body">
+                            <h5>Total Runs: <span id="total-runs" class="badge bg-primary">0</span></h5>
+                            <ul class="list-group mb-3" id="recipe-stats"></ul>
+                            <button class="btn btn-warning" onclick="resetCounters()">Reset All Counters</button>
+                        </div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="progressModalTitle">Running...</h5>
+                </div>
+                <div class="modal-body">
+                    <h6 id="progressTaskName"></h6>
+                    <p id="progressStepLabel"></p>
+                    <div class="progress" role="progressbar" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-bar" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="stopSequence()">Cancel Run</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="/bootstrap.bundle.min.js"></script>
+<script src="/script.js"></script>
+</body>
+</html>

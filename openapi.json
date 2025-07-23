@@ -1,0 +1,250 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Drink Crafter API",
+    "description": "The REST API for the Drink Crafter, an open-source ESP32-based cocktail mixing machine. Recipes are loaded from a `recipes.json` file on the device's filesystem at boot and cannot be modified at runtime. This API allows for running recipes, controlling pumps, and managing settings.",
+    "version": "1.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://192.168.4.1",
+      "description": "Default Access Point Server"
+    }
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Get Full System Status",
+        "description": "Returns a large JSON object with the complete state of the device, including pump settings, all recipes, run counters, and the current run progress if a sequence is active.",
+        "responses": {
+          "200": {
+            "description": "Successful response with the full system state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pump/{pumpIndex}/{state}": {
+      "get": {
+        "summary": "Direct Pump Control",
+        "description": "Manually turn a specific pump on or off.",
+        "parameters": [
+          {
+            "name": "pumpIndex",
+            "in": "path",
+            "required": true,
+            "description": "The index of the pump (0-7).",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "state",
+            "in": "path",
+            "required": true,
+            "description": "The desired state: 1 for ON, 0 for OFF.",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pump state changed successfully."
+          }
+        }
+      }
+    },
+    "/volumes": {
+      "post": {
+        "summary": "Set Manual Dosing Volumes",
+        "description": "Sets the volume (in ml) for each pump for a subsequent manual dosing run.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "volumes": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "example": [50, 0, 0, 150, 0, 0, 0, 0]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Volumes set successfully."
+          }
+        }
+      }
+    },
+    "/start_dosing": {
+      "get": {
+        "summary": "Start Manual Dosing",
+        "description": "Starts a manual dosing run using the volumes previously set via the /volumes endpoint.",
+        "responses": {
+          "200": {
+            "description": "Manual dosing sequence started."
+          }
+        }
+      }
+    },
+    "/run_recipe/{recipeIndex}": {
+      "get": {
+        "summary": "Run a Recipe",
+        "description": "Starts executing a specific recipe by its index.",
+        "parameters": [
+          {
+            "name": "recipeIndex",
+            "in": "path",
+            "required": true,
+            "description": "The index of the recipe to run.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recipe sequence started."
+          }
+        }
+      }
+    },
+    "/stop": {
+      "get": {
+        "summary": "Stop Current Operation",
+        "description": "Stops any currently running recipe or manual dosing sequence.",
+        "responses": {
+          "200": {
+            "description": "All operations stopped."
+          }
+        }
+      }
+    },
+    "/settings": {
+      "post": {
+        "summary": "Update Pump Settings",
+        "description": "Updates the names, calibration, and relay assignments for all pumps.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pumps": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PumpSetting"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully."
+          }
+        }
+      }
+    },
+    "/reset_counters": {
+      "post": {
+        "summary": "Reset All Counters",
+        "description": "Resets the total run counter and all individual recipe run counters to zero. The UI protects this with a PIN, but the API endpoint itself is open.",
+        "responses": {
+          "200": {
+            "description": "All counters reset."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PumpSetting": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Vodka" },
+          "assignedRelay": { "type": "integer", "example": 0 },
+          "calibration": { "type": "integer", "example": 1000 }
+        }
+      },
+      "PumpStatus": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Vodka" },
+          "assignedRelay": { "type": "integer", "example": 0 },
+          "calibration": { "type": "integer", "example": 1000 }
+        }
+      },
+      "RecipeAction": {
+        "type": "object",
+        "properties": {
+          "pumpIndex": { "type": "integer", "description": "Index of the pump to use." },
+          "volume": { "type": "integer", "description": "Volume in ml." }
+        }
+      },
+      "RecipeStep": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RecipeAction" }
+          }
+        }
+      },
+      "RecipeStatus": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "stepCount": { "type": "integer" },
+          "runCount": { "type": "integer" },
+          "steps": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RecipeStep" }
+          }
+        }
+      },
+      "RunProgress": {
+        "type": "object",
+        "properties": {
+          "taskName": { "type": "string" },
+          "currentStep": { "type": "integer" },
+          "totalSteps": { "type": "integer" },
+          "stepStartTime": { "type": "integer", "description": "Start time in milliseconds since boot." },
+          "stepDuration": { "type": "integer", "description": "Total duration of the current step in milliseconds." },
+          "currentTime": { "type": "integer", "description": "Current time in milliseconds since boot." }
+        }
+      },
+      "SystemStatus": {
+        "type": "object",
+        "properties": {
+          "systemState": { "type": "string", "enum": ["IDLE", "DOSING_MANUAL", "EXECUTING_RECIPE"] },
+          "totalRunCount": { "type": "integer" },
+          "progress": { "$ref": "#/components/schemas/RunProgress" },
+          "relayStates": { "type": "array", "items": { "type": "integer" } },
+          "pumps": { "type": "array", "items": { "$ref": "#/components/schemas/PumpStatus" } },
+          "recipes": { "type": "array", "items": { "$ref": "#/components/schemas/RecipeStatus" } }
+        }
+      }
+    }
+  }
+}
