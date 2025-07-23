@@ -4,14 +4,16 @@ Drink Crafter is an open-source project that turns an ESP32 and a relay module i
 
 All settings, recipes, and web files are stored on the ESP32's flash memory, meaning it requires no internet connection to operate after the initial setup.
 
+![Drink Crafter](images/drink_crafter.png)
+
 ## Features
 
 - **Standalone Operation:** Creates its own Wi-Fi Access Point. No internet required.
 - **Flexible Hardware Profiles:** Easily configure for different boards, numbers of pumps, and pin layouts using PlatformIO's custom board definitions.
-- **Simplified Web UI:** Modern, responsive interface focused on making drinks. Recipes are managed by editing the `recipes.json` file.
+- **Simplified Web UI:** Modern, responsive interface focused on making drinks.
 - **Direct Pump Control:** Manually turn individual pumps on and off for testing and cleaning.
 - **Pump Configuration:** Set custom names, calibration values (ms/ml), and relay assignments for each pump.
-- **Read-Only Recipes:** The device loads all cocktail recipes from the `data/recipes.json` file at boot.
+- **Read-Only Recipes:** The device loads all cocktail recipes from the `data/recipes.json` file at boot. To change recipes, you must edit this file and re-upload the filesystem.
 - **Persistent Storage:** Pump settings and run counters are saved to the ESP32's flash memory and persist through reboots.
 - **Run Statistics:** Counts the total number of drinks made and the number of runs for each individual recipe.
 - **Secure Counter Reset:** A PIN-protected function to reset all run counters.
@@ -123,11 +125,30 @@ The "Settings" tab contains a section for statistics. To reset all counters to z
 
 ---
 
+## Screenshots
+
+![cocktails](images/01_cocktails.png)
+
+![direct pump control](images/02_direct_pump_control.png)
+
+![manual dosing](images/03_manual_dosing.png)
+
+![pumps settings](images/04_pump_settings.png)
+
+![pump calibration](images/05_pump_calibration.png)
+
+![recipe management](images/06_recipe_management.png)
+
+
+---
+
 ## For Advanced Users: API Endpoints
 
 The project includes a full OpenAPI 3.0 specification file (`openapi.json`) that formally describes all available API endpoints, parameters, and schemas. You can use this file with tools like Swagger UI for interactive API documentation or to generate client code for custom integrations.
 
 -   `GET /status`: Returns a large JSON object with the complete state of the device.
+-   `GET /recipes`: Returns the raw content of the `recipes.json` file.
+-   `PUT /recipes`: Replaces the `recipes.json` file and reboots the device.
 -   `GET /pump/{pumpIndex}/{state}`: Manually turn a pump on (1) or off (0).
 -   `POST /volumes`: Sets the volumes for a manual dosing run.
 -   `GET /start_dosing`: Starts a manual dosing run.
