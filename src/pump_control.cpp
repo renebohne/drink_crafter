@@ -18,6 +18,7 @@ unsigned long stepStartTime = 0;
 unsigned long longestStepTime = 0;
 int currentRecipeIndex = -1;
 int currentStepIndex = -1;
+int calibratingPumpIndex = -1;
 
 Preferences preferences;
 
@@ -134,15 +135,18 @@ void setupPumps() {
         digitalWrite(relayPins[i], LOW);
     }
 
-    // Load recipes first to check if setup is needed
-    loadRecipes();
+    preferences.begin(PREFERENCES_NAMESPACE, true);
+    // Check if the first recipe key exists in preferences.
+    bool recipesExistInPrefs = preferences.isKey("r_json_0");
+    preferences.end();
     
-    // If the first recipe has no name, it's likely a fresh install
-    if (recipes[0].name == "") {
+    // If no recipes are in preferences, it's a first boot or a reset.
+    if (!recipesExistInPrefs) {
         initializeFirstBootSettings();
     }
 
     loadPumpSettings();
+    loadRecipes(); // Load the now-populated recipes from Preferences
     loadCounters();
     Serial.println("Pumps & Recipes initialized.");
 }
@@ -194,10 +198,11 @@ void calibratePump(int pumpIndex) {
     if (pumpIndex < 0 || pumpIndex >= PUMP_COUNT) return;
 
     Serial.println("Running calibration for pump: " + pumps[pumpIndex].name);
+    systemState = CALIBRATING;
+    calibratingPumpIndex = pumpIndex;
+    longestStepTime = CALIBRATION_RUN_DURATION_MS;
+    stepStartTime = millis();
     setPumpState(pumpIndex, HIGH);
-    vTaskDelay(CALIBRATION_RUN_DURATION_MS / portTICK_PERIOD_MS);
-    setPumpState(pumpIndex, LOW);
-    Serial.println("Calibration run finished.");
 }
 
 void setVolumes(const unsigned int newVolumes[]) {
@@ -303,6 +308,19 @@ void resetAllCounters() {
     preferences.end();
 }
 
+void clearAllRecipesFromPreferences() {
+    Serial.println("Clearing all recipes from Preferences...");
+    preferences.begin(PREFERENCES_NAMESPACE, false);
+    for (int i = 0; i < MAX_RECIPES; i++) {
+        String recipeKey = "r_json_" + String(i);
+        if (preferences.isKey(recipeKey.c_str())) {
+            preferences.remove(recipeKey.c_str());
+        }
+    }
+    preferences.end();
+    Serial.println("Recipes cleared from Preferences.");
+}
+
 
 // --- Sequence & Recipe Execution ---
 
@@ -311,6 +329,7 @@ void stopCurrentSequence() {
     systemState = IDLE;
     currentRecipeIndex = -1;
     currentStepIndex = -1;
+    calibratingPumpIndex = -1;
     for (int i = 0; i < PUMP_COUNT; i++) {
         setPumpState(i, LOW);
     }
@@ -390,6 +409,11 @@ void updateExecution() {
         if (allFinished) {
             stopCurrentSequence();
             Serial.println("Manual dosing finished.");
+        }
+    } else if (systemState == CALIBRATING) {
+        if (currentTime - stepStartTime >= longestStepTime) {
+            stopCurrentSequence();
+            Serial.println("Calibration run finished.");
         }
     }
 }

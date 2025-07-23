@@ -52,7 +52,7 @@ function render() {
         currentData.pumps.forEach((pump, i) => {
             pumpControlsHtml += `
                 <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" role="switch" id="pump-toggle-${i}">
+                    <input class="form-check-input" type="checkbox" role="switch" id="pump-toggle-${i}" onchange="togglePump(${i})">
                     <label class="form-check-label" for="pump-toggle-${i}">${pump.name}</label>
                 </div>`;
             
@@ -79,7 +79,7 @@ function render() {
         volInputs.innerHTML = volHtml;
     }
 
-    // --- Update values on every render (only for dynamic elements) ---
+    // --- Update values on every render (respecting focus) ---
     let anyPumpOn = false;
     recipeList.innerHTML = '';
     statsList.innerHTML = '';
@@ -89,7 +89,18 @@ function render() {
         if (relayState === 1) anyPumpOn = true;
 
         const toggle = document.getElementById(`pump-toggle-${i}`);
-        toggle.checked = relayState === 1;
+        if (document.activeElement !== toggle) {
+            toggle.checked = relayState === 1;
+        }
+
+        const nameInput = document.getElementById(`name-${i}`);
+        if (document.activeElement !== nameInput) nameInput.value = pump.name;
+
+        const calInput = document.getElementById(`cal-${i}`);
+        if (document.activeElement !== calInput) calInput.value = pump.calibration;
+
+        const relaySelect = document.getElementById(`relay-${i}`);
+        if (document.activeElement !== relaySelect) relaySelect.value = pump.assignedRelay;
     });
 
     document.getElementById('all-pumps-toggle').checked = anyPumpOn;
@@ -108,6 +119,8 @@ function render() {
         statusIndicator.className = 'bg-info'; statusText.textContent = 'Manual Dosing';
     } else if (currentData.systemState === 'EXECUTING_RECIPE') {
         statusIndicator.className = 'bg-success'; statusText.textContent = 'Recipe Running';
+    } else if (currentData.systemState === 'CALIBRATING') {
+        statusIndicator.className = 'bg-warning'; statusText.textContent = 'Calibrating';
     } else {
         statusIndicator.className = 'bg-secondary'; statusText.textContent = 'Idle';
     }
@@ -153,9 +166,8 @@ async function apiGet(endpoint) {
 
 // --- Control Panel ---
 function togglePump(pumpIndex) {
-    const pump = currentData.pumps[pumpIndex];
-    const relayIndex = pump.assignedRelay;
-    const newState = (currentData.relayStates[relayIndex] || 0) === 1 ? 0 : 1;
+    const toggle = document.getElementById(`pump-toggle-${pumpIndex}`);
+    const newState = toggle.checked ? 1 : 0;
     apiGet(`/pump/${pumpIndex}/${newState}`);
 }
 
@@ -220,6 +232,47 @@ function calculateCalibration(pumpIndex, measuredVolume) {
     if (calInput) {
         calInput.value = msPerMl;
     }
+}
+
+// --- Recipe Management ---
+async function downloadRecipes() {
+    try {
+        const response = await fetch('/recipes');
+        const recipes = await response.json();
+        const content = JSON.stringify(recipes, null, 2);
+        const blob = new Blob([content], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'recipes.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } catch (e) {
+        console.error(e);
+        alert('Failed to download recipes.');
+    }
+}
+
+function uploadRecipes(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            // Basic validation to check if it's a valid JSON
+            JSON.parse(e.target.result);
+            const response = await fetch('/recipes', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: e.target.result
+            });
+            if (!response.ok) throw new Error(await response.text());
+            alert('Recipes uploaded successfully! The device will now reboot.');
+        } catch (err) {
+            console.error(err);
+            alert('Upload failed. Please ensure the file is a valid JSON.');
+        }
+    };
+    reader.readAsText(file);
 }
 
 // --- Recipe Panel ---

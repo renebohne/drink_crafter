@@ -67,6 +67,14 @@
                                 <!-- JS will generate content here -->
                             </div>
                         </div></div>
+                        <div class="card my-3"><div class="card-header">Recipe Management</div><div class="card-body">
+                            <p class="text-muted small">Download the current `recipes.json` file for backup, or upload a new file to replace the existing recipes. The device will reboot after an upload.</p>
+                            <div class="d-flex">
+                                <button class="btn btn-secondary me-2" onclick="downloadRecipes()">Download Recipes</button>
+                                <input type="file" id="upload-recipes-input" style="display: none;" onchange="uploadRecipes(this.files[0])">
+                                <label for="upload-recipes-input" class="btn btn-success">Upload Recipes</label>
+                            </div>
+                        </div></div>
                         <div class="card my-3"><div class="card-header">Statistics & Maintenance</div><div class="card-body">
                             <h5>Total Runs: <span id="total-runs" class="badge bg-primary">0</span></h5>
                             <ul class="list-group mb-3" id="recipe-stats"></ul>
@@ -94,7 +102,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" onclick="stopSequence()">Cancel Run</button>
-                </div>
+                </div> 
             </div>
         </div>
     </div>

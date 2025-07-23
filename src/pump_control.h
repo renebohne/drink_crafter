@@ -34,6 +34,7 @@ struct Recipe {
 // Pump Setup & Settings
 void setupPumps();
 void updatePumpSettings(const Pump newPumps[]);
+void clearAllRecipesFromPreferences(); // New function
 
 // Direct Pump & Volume Control
 void setPumpState(int pumpIndex, int state);
@@ -58,12 +59,13 @@ extern int relayStates[PUMP_COUNT];
 extern unsigned long totalRunCount;
 
 // State Machine
-enum SystemState { IDLE, DOSING_MANUAL, EXECUTING_RECIPE };
+enum SystemState { IDLE, DOSING_MANUAL, EXECUTING_RECIPE, CALIBRATING };
 extern SystemState systemState;
 
 // Execution state variables needed for status reporting
 extern int currentRecipeIndex;
 extern int currentStepIndex;
+extern int calibratingPumpIndex;
 extern unsigned long stepStartTime;
 extern unsigned long longestStepTime;
 

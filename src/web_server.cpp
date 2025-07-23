@@ -11,6 +11,9 @@ WebServer server(80);
 // This function prints the details of an incoming HTTP request to the Serial monitor.
 void logRequest() {
     String method = (server.method() == HTTP_GET) ? "GET" : "POST";
+    if (server.method() == HTTP_PUT) {
+        method = "PUT";
+    }
     Serial.println("HTTP Request: " + method + " " + server.uri());
 }
 
@@ -21,6 +24,7 @@ String getContentType(String filename) {
     else if (filename.endsWith(".html")) return "text/html";
     else if (filename.endsWith(".css")) return "text/css";
     else if (filename.endsWith(".js")) return "application/javascript";
+    else if (filename.endsWith(".json")) return "application/json";
     else if (filename.endsWith(".png")) return "image/png";
     else if (filename.endsWith(".gif")) return "image/gif";
     else if (filename.endsWith(".jpg")) return "image/jpeg";
@@ -44,6 +48,14 @@ bool handleFileRead(String path) {
     }
     return false; // If the file doesn't exist, return false
 }
+
+
+// --- Route Handler Prototypes ---
+void handleSetSettings(); void handleSetVolumes();
+void handleStartDosing(); void handleStop(); void handleStatus();
+void handleRunRecipe(); void handleCalibratePump();
+void handlePumpControl(); void handleResetCounters();
+void handleRecipes();
 
 void setupWebServer() {
     // SPIFFS is now initialized in main.cpp
@@ -75,6 +87,8 @@ void setupWebServer() {
 
 
     // API and action routes
+    server.on("/recipes", HTTP_GET, handleRecipes);
+    server.on("/recipes", HTTP_PUT, handleRecipes);
     server.on("/settings", HTTP_POST, handleSetSettings);
     server.on("/volumes", HTTP_POST, handleSetVolumes);
     server.on("/start_dosing", HTTP_GET, handleStartDosing);
@@ -113,7 +127,28 @@ void handleWebServerClient() { server.handleClient(); }
 
 // --- Route Handler Implementations ---
 
-// This function now manually parses the URI.
+void handleRecipes() {
+    logRequest();
+    if (server.method() == HTTP_GET) {
+        handleFileRead("/recipes.json");
+    } else if (server.method() == HTTP_PUT) {
+        File file = SPIFFS.open("/recipes.json", "w");
+        if (!file) {
+            server.send(500, "text/plain", "Error opening recipes.json for writing");
+            return;
+        }
+        file.print(server.arg("plain"));
+        file.close();
+        
+        // Clear old recipes from permanent storage before rebooting
+        clearAllRecipesFromPreferences();
+
+        server.send(200, "text/plain", "Recipes updated. Rebooting to apply changes.");
+        vTaskDelay(200 / portTICK_PERIOD_MS); // Short delay to ensure response is sent
+        ESP.restart();
+    }
+}
+
 void handlePumpControl() {
     String uri = server.uri(); // e.g., "/pump/0/1"
     
@@ -182,7 +217,7 @@ void handleSetVolumes() {
 void handleStatus() {
     logRequest();
     StaticJsonDocument<4096> doc;
-    doc["systemState"] = (systemState == IDLE) ? "IDLE" : (systemState == DOSING_MANUAL ? "DOSING_MANUAL" : "EXECUTING_RECIPE");
+    doc["systemState"] = (systemState == IDLE) ? "IDLE" : (systemState == DOSING_MANUAL ? "DOSING_MANUAL" : (systemState == CALIBRATING ? "CALIBRATING" : "EXECUTING_RECIPE"));
     doc["totalRunCount"] = totalRunCount;
     
     // Add execution progress info
@@ -192,8 +227,12 @@ void handleStatus() {
             progress["taskName"] = recipes[currentRecipeIndex].name;
             progress["currentStep"] = currentStepIndex + 1;
             progress["totalSteps"] = recipes[currentRecipeIndex].stepCount;
-        } else {
+        } else if (systemState == DOSING_MANUAL) {
             progress["taskName"] = "Manual Dosing";
+            progress["currentStep"] = 1;
+            progress["totalSteps"] = 1;
+        } else if (systemState == CALIBRATING) {
+            progress["taskName"] = "Calibrating: " + pumps[calibratingPumpIndex].name;
             progress["currentStep"] = 1;
             progress["totalSteps"] = 1;
         }

@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Drink Crafter API",
-    "description": "The REST API for the Drink Crafter, an open-source ESP32-based cocktail mixing machine. Recipes are loaded from a `recipes.json` file on the device's filesystem at boot and cannot be modified at runtime. This API allows for running recipes, controlling pumps, and managing settings.",
-    "version": "1.1.0"
+    "description": "The REST API for the Drink Crafter, an open-source ESP32-based cocktail mixing machine. Recipes are loaded from a `recipes.json` file on the device's filesystem. This API allows for running recipes, controlling pumps, and managing settings.",
+    "version": "1.2.0"
   },
   "servers": [
     {
@@ -26,6 +26,49 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/recipes": {
+      "get": {
+        "summary": "Get Recipes File",
+        "description": "Returns the raw content of the recipes.json file currently stored on the device's filesystem.",
+        "responses": {
+          "200": {
+            "description": "The content of recipes.json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecipeFileObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Recipes File",
+        "description": "Replaces the content of recipes.json on the device's filesystem with the provided JSON body. The device will automatically reboot to load the new recipes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RecipeFileObject"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recipes updated successfully. Device is rebooting."
           }
         }
       }
@@ -211,6 +254,32 @@
           }
         }
       },
+      "RecipeFileAction": {
+        "type": "object",
+        "properties": {
+          "pump": { "type": "string", "description": "Name of the pump to use." },
+          "volume": { "type": "integer", "description": "Volume in ml." }
+        }
+      },
+      "RecipeFileStep": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RecipeFileAction" }
+          }
+        }
+      },
+      "RecipeFileObject": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "steps": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RecipeFileStep" }
+          }
+        }
+      },
       "RecipeStatus": {
         "type": "object",
         "properties": {
@@ -237,7 +306,7 @@
       "SystemStatus": {
         "type": "object",
         "properties": {
-          "systemState": { "type": "string", "enum": ["IDLE", "DOSING_MANUAL", "EXECUTING_RECIPE"] },
+          "systemState": { "type": "string", "enum": ["IDLE", "DOSING_MANUAL", "EXECUTING_RECIPE", "CALIBRATING"] },
           "totalRunCount": { "type": "integer" },
           "progress": { "$ref": "#/components/schemas/RunProgress" },
           "relayStates": { "type": "array", "items": { "type": "integer" } },

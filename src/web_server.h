@@ -17,6 +17,7 @@ void handleRunRecipe();
 void handleCalibratePump();
 void handlePumpControl();
 void handleResetCounters();
+void handleRecipes(); // New handler for GET/PUT recipes
 
 // --- Extern WebServer Object ---
 extern WebServer server;
