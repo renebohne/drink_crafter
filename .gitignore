@@ -1,0 +1,19 @@
+# PlatformIO temporary files
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# VS Code specific files
+.vscode/
+
+# macOS specific files
+.DS_Store
+**/.DS_Store
+
+# Downloaded library files (user should download these manually as per README)
+data/bootstrap.min.css
+data/bootstrap.bundle.min.js
+
+# Other common temporary files
+*.bak
+*.tmp
