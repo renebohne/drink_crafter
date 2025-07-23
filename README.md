@@ -23,6 +23,9 @@ All settings, recipes, and web files are stored on the ESP32's flash memory, mea
 
 ## Hardware Requirements
 
+> [!TIP]
+> This is the board with ESP32 and eight relays that I use: LC-Relay-ESP-32-8R-D5 https://www.amazon.de/dp/B0CZDQ9QRG
+
 1.  **ESP32 Development Board:** Any common ESP32 board will work (e.g., ESP32-DevKitC, Seeed Studio XIAO ESP32-C6).
 2.  **Relay Module:** A 5V relay module that can be controlled by the ESP32's 3.3V logic.
 3.  **Pumps:** Peristaltic pumps or other 5V/12V pumps suitable for food-grade liquids, along with appropriate power supply.
