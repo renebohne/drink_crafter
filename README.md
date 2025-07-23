@@ -25,6 +25,7 @@ All settings, recipes, and web files are stored on the ESP32's flash memory, mea
 
 > [!TIP]
 > This is the board with ESP32 and eight relays that I use: LC-Relay-ESP-32-8R-D5 https://www.amazon.de/dp/B0CZDQ9QRG
+> But the code is also prepared for the Seeed Studio Relay board if 6-channels are enough for your drink crafter robot: https://wiki.seeedstudio.com/6_channel_wifi_relay/
 
 1.  **ESP32 Development Board:** Any common ESP32 board will work (e.g., ESP32-DevKitC, Seeed Studio XIAO ESP32-C6).
 2.  **Relay Module:** A 5V relay module that can be controlled by the ESP32's 3.3V logic.
