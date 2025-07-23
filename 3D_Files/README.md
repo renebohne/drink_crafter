@@ -2,6 +2,9 @@ This folder contains the 3D design files for the Drink Crafter Open Source Cockt
 
 This is WORK IN PROGRESS!
 
+Pumps used: https://www.amazon.de/dp/B07WPDVRDD
+
+Tube used: https://www.amazon.de/dp/B0BZXWSW5F
 
 * compact_cocktailmaschinbe.scad is the source code for OpenScad.
 
