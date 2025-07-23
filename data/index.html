@@ -10,12 +10,19 @@
         #status-indicator { height: 20px; width: 20px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 10px; }
         #status-text { vertical-align: middle; } .nav-tabs .nav-link { cursor: pointer; }
         .recipe-btn {
-            height: 80px;
+            height: 90px;
             font-size: 1.2rem;
             font-weight: 500;
         }
         .nav-link svg { margin-right: 8px; }
         .form-switch .form-check-label { font-weight: 500; }
+        .ingredient-list {
+            font-size: 0.75rem;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-top: 4px;
+            line-height: 1.2;
+        }
     </style>
 </head>
 <body>
@@ -102,7 +109,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" onclick="stopSequence()">Cancel Run</button>
-                </div> 
+                </div>
             </div>
         </div>
     </div>

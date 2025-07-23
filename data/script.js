@@ -107,7 +107,27 @@ function render() {
 
     currentData.recipes.forEach((recipe, i) => {
         if (recipe.name) {
-            recipeList.innerHTML += `<div class="col-6 col-md-4 p-2"><button class="btn btn-primary w-100 recipe-btn" onclick="runRecipe(${i})">${recipe.name}</button></div>`;
+            // --- New logic to get ingredients ---
+            const ingredients = new Set();
+            recipe.steps.forEach(step => {
+                step.actions.forEach(action => {
+                    if (currentData.pumps[action.pumpIndex]) {
+                        const pumpName = currentData.pumps[action.pumpIndex].name;
+                        ingredients.add(pumpName);
+                    }
+                });
+            });
+            const ingredientsString = Array.from(ingredients).join(', ');
+
+            // Render recipe list as large buttons with ingredients
+            recipeList.innerHTML += `
+                <div class="col-6 col-md-4 p-2">
+                    <button class="btn btn-primary w-100 recipe-btn d-flex flex-column justify-content-center" onclick="runRecipe(${i})">
+                        <span>${recipe.name}</span>
+                        <small class="ingredient-list">${ingredientsString}</small>
+                    </button>
+                </div>`;
+            
             statsList.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">${recipe.name}<span class="badge bg-secondary">${recipe.runCount}</span></li>`;
         }
     });
