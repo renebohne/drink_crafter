@@ -51,7 +51,6 @@ jobs:
 
       - name: Prepare Release and Deploy Assets
         run: |
-          mkdir -p deploy
           mkdir -p deploy/release_assets
           
           # Copy binaries to deploy folder
@@ -91,7 +90,7 @@ jobs:
           echo '        { "path": "bootloader-xiao_c6_6channel.bin", "offset": 0 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '        { "path": "partitions-xiao_c6_6channel.bin", "offset": 32768 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '        { "path": "firmware-xiao_c6_6channel.bin", "offset": 65536 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
-          echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> release_assets/manifest-xiao_c6_6channel.json
+          echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '      ]' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '    }' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '  ]' >> deploy/release_assets/manifest-xiao_c6_6channel.json
