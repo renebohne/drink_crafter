@@ -1,0 +1,110 @@
+# GitHub Actions Workflow for Drink Crafter
+#
+# This workflow automates the build and release process.
+# It triggers automatically whenever you push a new version tag
+# (e.g., v1.0.0, v1.1.0) to your GitHub repository.
+#
+# The workflow will:
+# 1. Build the firmware and filesystem for both the 8-channel and 6-channel boards.
+# 2. Merge the bootloader, partition table, firmware, and filesystem into a single
+#    binary file for each board.
+# 3. Create a new GitHub Release named after the version tag.
+# 4. Upload the two combined binaries as assets to that release, making them
+#    easy for users to download and flash in one step.
+
+name: Create Release and Upload Binaries
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0, v1.1.0, etc.
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO Core
+        run: pip install -U platformio
+
+      - name: Download Bootstrap files
+        run: |
+          wget https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/dist/css/bootstrap.min.css -P data/
+          wget https://raw.githubusercontent.com/twbs/bootstrap/v5.3.2/dist/js/bootstrap.bundle.min.js -P data/
+
+      # --- Build for ESP32 Dev Board (8 Channel) ---
+      - name: Build firmware for esp32dev_8_channel
+        run: pio run -e esp32dev_8_channel
+      - name: Build filesystem for esp32dev_8_channel
+        run: pio run --target buildfs -e esp32dev_8_channel
+      - name: Merge binaries for esp32dev_8_channel
+        run: |
+          python -m esptool --chip esp32 merge_bin \
+          -o firmware-esp32dev_8_channel-full.bin \
+          --flash_mode dio --flash_size 4MB \
+          0x1000 .pio/build/esp32dev_8_channel/bootloader.bin \
+          0x8000 .pio/build/esp32dev_8_channel/partitions.bin \
+          0xe000 .pio/build/esp32dev_8_channel/boot_app0.bin \
+          0x10000 .pio/build/esp32dev_8_channel/firmware.bin \
+          0x290000 .pio/build/esp32dev_8_channel/littlefs.bin
+
+      # --- Build for XIAO ESP32-C6 (6 Channel) ---
+      - name: Build firmware for xiao_c6_6channel
+        run: pio run -e xiao_c6_6channel
+      - name: Build filesystem for xiao_c6_6channel
+        run: pio run --target buildfs -e xiao_c6_6channel
+      - name: Merge binaries for xiao_c6_6channel
+        run: |
+          python -m esptool --chip esp32c6 merge_bin \
+          -o firmware-xiao_c6_6channel-full.bin \
+          --flash_mode qio --flash_size 4MB \
+          0x0 .pio/build/xiao_c6_6channel/bootloader.bin \
+          0x8000 .pio/build/xiao_c6_6channel/partitions.bin \
+          0xe000 .pio/build/xiao_c6_6channel/boot_app0.bin \
+          0x10000 .pio/build/xiao_c6_6channel/firmware.bin \
+          0x290000 .pio/build/xiao_c6_6channel/littlefs.bin
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Automated release for ${{ github.ref }}.
+            
+            Attached assets are full binaries containing both the firmware and the web interface. You can flash these with a single command.
+            
+            - `firmware-esp32dev_8_channel-full.bin`: For standard 8-channel ESP32 boards.
+            - `firmware-xiao_c6_6channel-full.bin`: For the 6-channel XIAO ESP32-C6 board.
+          draft: false
+          prerelease: false
+
+      - name: Upload esp32dev Full Firmware Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./firmware-esp32dev_8_channel-full.bin
+          asset_name: firmware-esp32dev_8_channel-full.bin
+          asset_content_type: application/octet-stream
+
+      - name: Upload xiao_c6 Full Firmware Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./firmware-xiao_c6_6channel-full.bin
+          asset_name: firmware-xiao_c6_6channel-full.bin
+          asset_content_type: application/octet-stream
