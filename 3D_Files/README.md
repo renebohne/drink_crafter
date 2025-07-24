@@ -6,6 +6,12 @@ Pumps used: https://www.amazon.de/dp/B07WPDVRDD
 
 Tube used: https://www.amazon.de/dp/B0BZXWSW5F
 
+Pumps available in US market 
+https://a.co/d/62Jkr70
+
+Tubing available in US market 
+https://a.co/d/14cWMhf
+
 * compact_cocktailmaschinbe.scad is the source code for OpenScad.
 
 * compact_cocktailmaschine.stl is just for reference - DON'T PRINT THIS! You will not be able to mount pumps or components into this all-in-one model. You need to print the two parts: blue and red - see below!
