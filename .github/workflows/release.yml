@@ -51,7 +51,6 @@ jobs:
           --flash_mode dio --flash_size 4MB \
           0x1000 .pio/build/esp32dev_8_channel/bootloader.bin \
           0x8000 .pio/build/esp32dev_8_channel/partitions.bin \
-          0xe000 .pio/build/esp32dev_8_channel/boot_app0.bin \
           0x10000 .pio/build/esp32dev_8_channel/firmware.bin \
           0x290000 .pio/build/esp32dev_8_channel/littlefs.bin
 
@@ -67,7 +66,6 @@ jobs:
           --flash_mode qio --flash_size 4MB \
           0x0 .pio/build/xiao_c6_6channel/bootloader.bin \
           0x8000 .pio/build/xiao_c6_6channel/partitions.bin \
-          0xe000 .pio/build/xiao_c6_6channel/boot_app0.bin \
           0x10000 .pio/build/xiao_c6_6channel/firmware.bin \
           0x290000 .pio/build/xiao_c6_6channel/littlefs.bin
 
@@ -82,7 +80,7 @@ jobs:
           body: |
             Automated release for ${{ github.ref }}.
             
-            Attached assets are full binaries containing both the firmware and the web interface. You can flash these with a single command.
+            Attached assets are full binaries containing both the firmware and the web interface. You can flash these with a single command using the Web Flasher.
             
             - `firmware-esp32dev_8_channel-full.bin`: For standard 8-channel ESP32 boards.
             - `firmware-xiao_c6_6channel-full.bin`: For the 6-channel XIAO ESP32-C6 board.
