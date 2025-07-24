@@ -70,8 +70,8 @@ jobs:
           echo '    {' >> release_assets/manifest-esp32dev_8_channel.json
           echo '      "chipFamily": "ESP32",' >> release_assets/manifest-esp32dev_8_channel.json
           echo '      "parts": [' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "bootloader-esp32dev_8_channel.bin", "offset": 32768 },' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "partitions-esp32dev_8_channel.bin", "offset": 57344 },' >> release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "bootloader-esp32dev_8_channel.bin", "offset": 4096 },' >> release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "partitions-esp32dev_8_channel.bin", "offset": 32768 },' >> release_assets/manifest-esp32dev_8_channel.json
           echo '        { "path": "firmware-esp32dev_8_channel.bin", "offset": 65536 },' >> release_assets/manifest-esp32dev_8_channel.json
           echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> release_assets/manifest-esp32dev_8_channel.json
           echo '      ]' >> release_assets/manifest-esp32dev_8_channel.json
