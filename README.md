@@ -4,6 +4,8 @@ Drink Crafter is an open-source project that turns an ESP32 and a relay module i
 
 All settings, recipes, and web files are stored on the ESP32's flash memory, meaning it requires no internet connection to operate after the initial setup.
 
+![Drink Crafter](images/drink_crafter.png)
+
 ## Features
 
 * **Standalone Operation:** Creates its own Wi-Fi Access Point. No internet required.
@@ -24,7 +26,35 @@ All settings, recipes, and web files are stored on the ESP32's flash memory, mea
 
 * **Secure Counter Reset:** A PIN-protected function to reset all run counters.
 
-* **Live Progress View:** A modal pops up during a run to show the current step and a progress bar.
+* **Live** Progress **View:** A modal pops up during a run to show the current step and a progress bar.
+
+## Screenshots
+
+![Cocktails](images/01_cocktails.png)
+
+![Direct Pump Control](images/02_direct_pump_control.png)
+
+![Manual Dosing](images/03_manual_dosing.png)
+
+![Pump Settings](images/04_pump_settings.png)
+
+![Pump Calibration](images/05_pump_calibration.png)
+
+![Recipe Management](images/06_recipe_management.png)
+
+## Releases & Installation
+
+This project uses GitHub Actions for Continuous Integration and Deployment (CI/CD). On every new version tag (e.g., `v1.1.0`), a new release is automatically created with pre-compiled, all-in-one firmware binaries.
+
+### Easy Installation (Recommended)
+
+The easiest way to install Drink Crafter is by using the web flasher. This allows you to flash the firmware directly from your browser without needing to install any software.
+
+[**Click here to open the Drink Crafter Web Flasher**](https://renebohne.github.io/drink_crafter/web_flasher.html)
+
+### Manual Installation (for Developers)
+
+If you want to compile the code yourself, follow the setup instructions below.
 
 ## Hardware Requirements
 
@@ -36,7 +66,7 @@ All settings, recipes, and web files are stored on the ESP32's flash memory, mea
 
 4. **Connecting Wires:** Standard Dupont-style wires.
 
-> [!TIP]
+> \[!TIP\]
 > This is the board with ESP32 and eight relays that I use: LC-Relay-ESP-32-8R-D5 <https://www.amazon.de/dp/B0CZDQ9QRG>
 > But the code is also prepared for the Seeed Studio Relay board if 6-channels are enough for your drink crafter robot: <https://wiki.seeedstudio.com/6_channel_wifi_relay/>
 
@@ -171,6 +201,6 @@ This project is open-source and builds upon the fantastic work of others.
 
 * **ArduinoJson:** This library is used for all JSON parsing and serialization on the ESP32.
 
-  * **Copyright (c) 2014-2023 Benoît Blanchon**
+  * **Copyright** (c) 2014-2023 Benoît Blanchon
 
   * Licensed under the [MIT License](https://github.com/bblanchon/ArduinoJson/blob/master/LICENSE.md).
