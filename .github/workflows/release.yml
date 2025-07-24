@@ -7,9 +7,8 @@
 # The workflow will:
 # 1. Build the firmware and component binaries for both boards.
 # 2. Build the single, shared LittleFS filesystem image.
-# 3. Create a new GitHub Release.
-# 4. Upload all individual binary components as assets to that release,
-#    which are then used by the Web Flasher.
+# 3. Rename all binaries to have unique names.
+# 4. Create a new GitHub Release and upload all the renamed binaries as assets.
 
 name: Create Release and Upload Binaries
 
@@ -21,7 +20,6 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    # This grants the workflow the necessary permissions to create a release.
     permissions:
       contents: write
       
@@ -50,33 +48,28 @@ jobs:
       - name: Build Filesystem Image (shared)
         run: pio run --target buildfs -e esp32dev_8_channel
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare Release Assets
+        run: |
+          mkdir release_assets
+          mv .pio/build/esp32dev_8_channel/firmware.bin release_assets/firmware-esp32dev_8_channel.bin
+          mv .pio/build/esp32dev_8_channel/bootloader.bin release_assets/bootloader-esp32dev_8_channel.bin
+          mv .pio/build/esp32dev_8_channel/partitions.bin release_assets/partitions-esp32dev_8_channel.bin
+          mv .pio/build/xiao_c6_6channel/firmware.bin release_assets/firmware-xiao_c6_6channel.bin
+          mv .pio/build/xiao_c6_6channel/bootloader.bin release_assets/bootloader-xiao_c6_6channel.bin
+          mv .pio/build/xiao_c6_6channel/partitions.bin release_assets/partitions-xiao_c6_6channel.bin
+          mv .pio/build/esp32dev_8_channel/littlefs.bin release_assets/littlefs.bin
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release ${{ github.ref }}
           body: |
             Automated release for ${{ github.ref }}.
             
             Use the [Web Flasher](https://renebohne.github.io/drink_crafter/web_flasher.html) to install.
             
             The attached assets are the individual components for each board.
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            .pio/build/esp32dev_8_channel/firmware.bin
-            .pio/build/esp32dev_8_channel/bootloader.bin
-            .pio/build/esp32dev_8_channel/partitions.bin
-            .pio/build/xiao_c6_6channel/firmware.bin
-            .pio/build/xiao_c6_6channel/bootloader.bin
-            .pio/build/xiao_c6_6channel/partitions.bin
-            .pio/build/esp32dev_8_channel/littlefs.bin
+          files: release_assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
