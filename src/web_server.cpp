@@ -3,7 +3,7 @@
 #include "pump_control.h"
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <SPIFFS.h>
+#include <LittleFS.h> // Use LittleFS for all platforms
 
 WebServer server(80);
 
@@ -40,8 +40,8 @@ String getContentType(String filename) {
 bool handleFileRead(String path) {
     if (path.endsWith("/")) path += "index.html"; // If a directory is requested, try to serve index.html
     String contentType = getContentType(path);
-    if (SPIFFS.exists(path)) {
-        File file = SPIFFS.open(path, "r");
+    if (LittleFS.exists(path)) {
+        File file = LittleFS.open(path, "r");
         server.streamFile(file, contentType);
         file.close();
         return true;
@@ -50,7 +50,7 @@ bool handleFileRead(String path) {
 }
 
 void setupWebServer() {
-    // SPIFFS is now initialized in main.cpp
+    // Filesystem is now initialized in main.cpp
 
     WiFi.softAP(AP_SSID, AP_PASSWORD);
     Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
@@ -128,7 +128,7 @@ void handleRecipes() {
     if (server.method() == HTTP_GET) {
         handleFileRead("/recipes.json");
     } else if (server.method() == HTTP_PUT) {
-        File file = SPIFFS.open("/recipes.json", "w");
+        File file = LittleFS.open("/recipes.json", "w");
         if (!file) {
             server.send(500, "text/plain", "Error opening recipes.json for writing");
             return;

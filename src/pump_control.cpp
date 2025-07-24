@@ -1,7 +1,7 @@
 #include "pump_control.h"
 #include "config.h"
 #include <Preferences.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 
 // --- Global State Variables ---
@@ -60,11 +60,11 @@ void initializeFirstBootSettings() {
     savePumpSettings();
     Serial.println("Default pump names have been set and saved.");
 
-    // 2. Load recipes from recipes.json in SPIFFS
+    // 2. Load recipes from recipes.json
     Serial.println("Step 2: Loading recipes from recipes.json...");
-    if (SPIFFS.exists("/recipes.json")) {
+    if (LittleFS.exists("/recipes.json")) {
         Serial.println("recipes.json found. Parsing...");
-        File file = SPIFFS.open("/recipes.json", "r");
+        File file = LittleFS.open("/recipes.json", "r");
         DynamicJsonDocument doc(4096);
         DeserializationError error = deserializeJson(doc, file);
         file.close();
@@ -117,7 +117,7 @@ void initializeFirstBootSettings() {
             }
         }
     } else {
-        Serial.println("Warning: /recipes.json not found in SPIFFS.");
+        Serial.println("Warning: /recipes.json not found in filesystem.");
     }
 
     // 3. Finalize setup by resetting counters
@@ -306,6 +306,7 @@ void resetAllCounters() {
     preferences.end();
 }
 
+// *** RESTORED FUNCTION ***
 void clearAllRecipesFromPreferences() {
     Serial.println("Clearing all recipes from Preferences...");
     preferences.begin(PREFERENCES_NAMESPACE, false);

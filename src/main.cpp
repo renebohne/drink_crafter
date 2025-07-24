@@ -2,7 +2,7 @@
 #include "config.h"
 #include "pump_control.h"
 #include "web_server.h"
-#include <SPIFFS.h> // Include SPIFFS library here
+#include <LittleFS.h> // Use LittleFS library for all platforms
 
 // --- Global Variable Definitions ---
 // These variables are declared as 'extern' in config.h and defined here.
@@ -15,9 +15,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Booting...");
 
-  // Initialize SPIFFS first, as other modules depend on it.
-  if(!SPIFFS.begin(true)){
-      Serial.println("An Error has occurred while mounting SPIFFS");
+  // Initialize LittleFS
+  if(!LittleFS.begin(true)){
+      Serial.println("An Error has occurred while mounting LittleFS");
       return;
   }
 
@@ -36,6 +36,5 @@ void loop() {
   updateExecution();
 
   // Yield to other tasks (like the web server) using the FreeRTOS vTaskDelay.
-  // This is the correct way to prevent the UI from becoming unresponsive.
   vTaskDelay(1); 
 }

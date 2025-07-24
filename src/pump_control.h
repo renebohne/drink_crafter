@@ -34,7 +34,7 @@ struct Recipe {
 // Pump Setup & Settings
 void setupPumps();
 void updatePumpSettings(const Pump newPumps[]);
-void clearAllRecipesFromPreferences(); // New function
+void clearAllRecipesFromPreferences(); // Restored function
 
 // Direct Pump & Volume Control
 void setPumpState(int pumpIndex, int state);
