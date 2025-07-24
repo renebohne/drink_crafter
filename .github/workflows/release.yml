@@ -21,6 +21,10 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    # This grants the workflow the necessary permissions to create a release.
+    permissions:
+      contents: write
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
