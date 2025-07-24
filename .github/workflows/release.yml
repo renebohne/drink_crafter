@@ -46,7 +46,7 @@ jobs:
         run: pio run --target buildfs -e esp32dev_8_channel
       - name: Merge binaries for esp32dev_8_channel
         run: |
-          python -m esptool --chip esp32 merge_bin \
+          esptool.py --chip esp32 merge_bin \
           -o firmware-esp32dev_8_channel-full.bin \
           --flash_mode dio --flash_size 4MB \
           0x1000 .pio/build/esp32dev_8_channel/bootloader.bin \
@@ -62,7 +62,7 @@ jobs:
         run: pio run --target buildfs -e xiao_c6_6channel
       - name: Merge binaries for xiao_c6_6channel
         run: |
-          python -m esptool --chip esp32c6 merge_bin \
+          esptool.py --chip esp32c6 merge_bin \
           -o firmware-xiao_c6_6channel-full.bin \
           --flash_mode qio --flash_size 4MB \
           0x0 .pio/build/xiao_c6_6channel/bootloader.bin \
