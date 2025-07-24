@@ -7,10 +7,11 @@
 # The workflow will:
 # 1. Build all firmware and filesystem components.
 # 2. Automatically generate a manifest.json file for each board.
-# 3. Commit the compiled binaries and manifests to the 'release_assets' directory.
-# 4. Create a new GitHub Release and upload the same binaries as assets.
+# 3. Create a new GitHub Release and upload the binaries as assets.
+# 4. Deploy the web_flasher.html and all release assets to the 'gh-pages' branch,
+#    which hosts the live web flasher.
 
-name: Create Release and Upload Binaries
+name: Create Release and Deploy Flasher
 
 on:
   push:
@@ -26,8 +27,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetches all history for all branches and tags
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -50,58 +49,59 @@ jobs:
       - name: Build Filesystem Image (shared)
         run: pio run --target buildfs -e esp32dev_8_channel
 
-      - name: Prepare Release Assets and Manifests
+      - name: Prepare Release and Deploy Assets
         run: |
-          mkdir -p release_assets
+          mkdir -p deploy
+          mkdir -p deploy/release_assets
           
-          # Prepare assets with unique names
-          mv .pio/build/esp32dev_8_channel/firmware.bin release_assets/firmware-esp32dev_8_channel.bin
-          mv .pio/build/esp32dev_8_channel/bootloader.bin release_assets/bootloader-esp32dev_8_channel.bin
-          mv .pio/build/esp32dev_8_channel/partitions.bin release_assets/partitions-esp32dev_8_channel.bin
-          mv .pio/build/xiao_c6_6channel/firmware.bin release_assets/firmware-xiao_c6_6channel.bin
-          mv .pio/build/xiao_c6_6channel/bootloader.bin release_assets/bootloader-xiao_c6_6channel.bin
-          mv .pio/build/xiao_c6_6channel/partitions.bin release_assets/partitions-xiao_c6_6channel.bin
-          mv .pio/build/esp32dev_8_channel/littlefs.bin release_assets/littlefs.bin
+          # Copy binaries to deploy folder
+          cp .pio/build/esp32dev_8_channel/firmware.bin deploy/release_assets/firmware-esp32dev_8_channel.bin
+          cp .pio/build/esp32dev_8_channel/bootloader.bin deploy/release_assets/bootloader-esp32dev_8_channel.bin
+          cp .pio/build/esp32dev_8_channel/partitions.bin deploy/release_assets/partitions-esp32dev_8_channel.bin
+          cp .pio/build/xiao_c6_6channel/firmware.bin deploy/release_assets/firmware-xiao_c6_6channel.bin
+          cp .pio/build/xiao_c6_6channel/bootloader.bin deploy/release_assets/bootloader-xiao_c6_6channel.bin
+          cp .pio/build/xiao_c6_6channel/partitions.bin deploy/release_assets/partitions-xiao_c6_6channel.bin
+          cp .pio/build/esp32dev_8_channel/littlefs.bin deploy/release_assets/littlefs.bin
 
-          # Create manifest for esp32dev_8_channel with relative paths
-          echo '{' > release_assets/manifest-esp32dev_8_channel.json
-          echo '  "name": "Drink Crafter (ESP32 DevKit)",' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '  "builds": [' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '    {' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '      "chipFamily": "ESP32",' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '      "parts": [' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "bootloader-esp32dev_8_channel.bin", "offset": 4096 },' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "partitions-esp32dev_8_channel.bin", "offset": 32768 },' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "firmware-esp32dev_8_channel.bin", "offset": 65536 },' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '      ]' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '    }' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '  ]' >> release_assets/manifest-esp32dev_8_channel.json
-          echo '}' >> release_assets/manifest-esp32dev_8_channel.json
+          # Copy web flasher to deploy folder
+          cp web_flasher.html deploy/
 
-          # Create manifest for xiao_c6_6channel with relative paths
-          echo '{' > release_assets/manifest-xiao_c6_6channel.json
-          echo '  "name": "Drink Crafter (XIAO C6)",' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '  "builds": [' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '    {' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '      "chipFamily": "ESP32-C6",' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '      "parts": [' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '        { "path": "bootloader-xiao_c6_6channel.bin", "offset": 0 },' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '        { "path": "partitions-xiao_c6_6channel.bin", "offset": 32768 },' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '        { "path": "firmware-xiao_c6_6channel.bin", "offset": 65536 },' >> release_assets/manifest-xiao_c6_6channel.json
+          # Create manifests in deploy folder
+          echo '{' > deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '  "name": "Drink Crafter (ESP32 DevKit)",' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '  "builds": [' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '    {' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '      "chipFamily": "ESP32",' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '      "parts": [' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "bootloader-esp32dev_8_channel.bin", "offset": 4096 },' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "partitions-esp32dev_8_channel.bin", "offset": 32768 },' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "firmware-esp32dev_8_channel.bin", "offset": 65536 },' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '      ]' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '    }' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '  ]' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+          echo '}' >> deploy/release_assets/manifest-esp32dev_8_channel.json
+
+          echo '{' > deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '  "name": "Drink Crafter (XIAO C6)",' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '  "builds": [' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '    {' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '      "chipFamily": "ESP32-C6",' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '      "parts": [' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '        { "path": "bootloader-xiao_c6_6channel.bin", "offset": 0 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '        { "path": "partitions-xiao_c6_6channel.bin", "offset": 32768 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '        { "path": "firmware-xiao_c6_6channel.bin", "offset": 65536 },' >> deploy/release_assets/manifest-xiao_c6_6channel.json
           echo '        { "path": "littlefs.bin", "offset": 2686976 }' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '      ]' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '    }' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '  ]' >> release_assets/manifest-xiao_c6_6channel.json
-          echo '}' >> release_assets/manifest-xiao_c6_6channel.json
+          echo '      ]' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '    }' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '  ]' >> deploy/release_assets/manifest-xiao_c6_6channel.json
+          echo '}' >> deploy/release_assets/manifest-xiao_c6_6channel.json
 
-      - name: Commit Release Assets to Repository
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add release_assets/
-          git commit -m "CI: Add/update release assets for ${{ github.ref }}" || echo "No changes to commit"
-          git push origin HEAD:main
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
@@ -114,6 +114,6 @@ jobs:
             Use the [Web Flasher](https://renebohne.github.io/drink_crafter/web_flasher.html) to install.
             
             The attached assets are the individual components for each board.
-          files: release_assets/*
+          files: deploy/release_assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
