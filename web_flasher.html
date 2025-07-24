@@ -51,12 +51,10 @@
         const installButton = document.getElementById('install-button');
         const boardSelect = document.getElementById('board-select');
 
-        const GITHUB_USER = "renebohne";
-        const GITHUB_REPO = "drink_crafter";
-
         function updateManifestPath() {
             const board = boardSelect.value;
-            const manifestUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/manifest-${board}.json`;
+            // The manifest path is now relative to this HTML file's location on GitHub Pages.
+            const manifestUrl = `release_assets/manifest-${board}.json`;
             installButton.manifest = manifestUrl;
         }
 
