@@ -36,142 +36,34 @@
 
             <!-- Connect Button -->
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">2. Connect to ESP32</label>
-                <esp-web-install-button id="connect-button" class="w-full">
-                    <button slot="activate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition">Connect</button>
-                    <button slot="connected" class="w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg">Connected</button>
+                <label class="block text-sm font-medium text-gray-300 mb-1">2. Install Drink Crafter</label>
+                <esp-web-install-button id="install-button" class="w-full">
+                    <button slot="activate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition">Install</button>
+                    <button slot="unsupported" class="w-full bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed">Unsupported Browser</button>
+                    <button slot="error" class="w-full bg-red-600 text-white font-semibold py-2.5 px-4 rounded-lg">Error</button>
                 </esp-web-install-button>
-            </div>
-
-            <!-- Erase Option -->
-            <div class="form-check flex items-center">
-                <input id="erase-flash" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600">
-                <label for="erase-flash" class="ms-2 text-sm font-medium text-gray-300">Erase flash before installing</label>
-            </div>
-
-            <!-- Flash Button -->
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">3. Install Drink Crafter</label>
-                <button id="flash-button" disabled class="w-full bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed">Install</button>
-            </div>
-        </div>
-
-        <!-- Log Output -->
-        <div class="mt-6 bg-gray-800 rounded-lg p-4 h-48 overflow-y-auto border border-gray-700">
-            <div id="logs" class="text-sm text-gray-400 space-y-1">
-                <p class="log-entry">Welcome! Please connect to your ESP32 to begin.</p>
             </div>
         </div>
     </div>
 
     <script type="module" src="https://unpkg.com/esp-web-tools@9.4.3/dist/web/install-button.js?module"></script>
     <script>
-        const connectButton = document.getElementById('connect-button');
-        const flashButton = document.getElementById('flash-button');
+        const installButton = document.getElementById('install-button');
         const boardSelect = document.getElementById('board-select');
-        const eraseFlashCheckbox = document.getElementById('erase-flash');
-        const logsContainer = document.getElementById('logs');
-
-        let device = null;
 
         const GITHUB_USER = "renebohne";
         const GITHUB_REPO = "drink_crafter";
 
-        const manifests = {
-            esp32dev_8_channel: [
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/bootloader-esp32dev_8_channel.bin`, offset: 0x1000 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/partitions-esp32dev_8_channel.bin`, offset: 0x8000 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/firmware-esp32dev_8_channel.bin`, offset: 0x10000 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/littlefs.bin`, offset: 0x290000 }
-            ],
-            xiao_c6_6channel: [
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/bootloader-xiao_c6_6channel.bin`, offset: 0x0 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/partitions-xiao_c6_6channel.bin`, offset: 0x8000 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/firmware-xiao_c6_6channel.bin`, offset: 0x10000 },
-                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/littlefs.bin`, offset: 0x290000 }
-            ]
-        };
-
-        function log(message) {
-            const p = document.createElement('p');
-            p.className = 'log-entry';
-            p.textContent = `> ${message}`;
-            logsContainer.appendChild(p);
-            logsContainer.scrollTop = logsContainer.scrollHeight;
+        function updateManifestPath() {
+            const board = boardSelect.value;
+            const manifestUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/manifest-${board}.json`;
+            installButton.manifest = manifestUrl;
         }
 
-        connectButton.addEventListener('connected', (e) => {
-            device = e.detail.device;
-            flashButton.disabled = false;
-            flashButton.classList.remove('bg-gray-600', 'cursor-not-allowed');
-            flashButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            log('Device connected.');
-        });
-
-        connectButton.addEventListener('disconnected', () => {
-            device = null;
-            flashButton.disabled = true;
-            flashButton.classList.add('bg-gray-600', 'cursor-not-allowed');
-            flashButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-            log('Device disconnected.');
-        });
-
-        flashButton.addEventListener('click', async () => {
-            if (!device) {
-                log('Error: Not connected to a device.');
-                return;
-            }
-
-            flashButton.disabled = true;
-            flashButton.textContent = 'Installing...';
-            log('Starting installation...');
-
-            try {
-                const board = boardSelect.value;
-                const manifest = manifests[board];
-                
-                log(`Fetching manifest for ${board}...`);
-                const files = await Promise.all(
-                    manifest.map(async ({ path, offset }) => {
-                        log(`  - Downloading ${path.split('/').pop()}`);
-                        const response = await fetch(path);
-                        if (!response.ok) throw new Error(`Failed to download ${path}`);
-                        const blob = await response.blob();
-                        return { data: await blob.arrayBuffer(), offset };
-                    })
-                );
-
-                const espTool = await connectButton.getEsptool();
-                const erase = eraseFlashCheckbox.checked;
-
-                if (erase) {
-                    log('Erasing flash...');
-                    await espTool.eraseFlash();
-                }
-
-                log('Writing files...');
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const filename = manifest[i].path.split('/').pop();
-                    log(`  - Flashing ${filename} at offset ${file.offset}`);
-                    await espTool.writeFlash(file.data, file.offset, (bytesWritten, totalBytes) => {
-                        const progress = Math.round((bytesWritten / totalBytes) * 100);
-                        flashButton.textContent = `Flashing ${filename}... ${progress}%`;
-                    });
-                }
-
-                log('Installation complete! Device will now reboot.');
-                alert('Drink Crafter has been installed successfully!');
-
-            } catch (error) {
-                console.error(error);
-                log(`Error: ${error.message}`);
-                alert(`Installation failed. Please check the logs and try again.`);
-            } finally {
-                flashButton.disabled = false;
-                flashButton.textContent = 'Install';
-            }
-        });
+        boardSelect.addEventListener('change', updateManifestPath);
+        
+        // Set the initial manifest path when the page loads
+        window.onload = updateManifestPath;
     </script>
 </body>
 </html>
