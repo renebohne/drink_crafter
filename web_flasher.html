@@ -74,9 +74,23 @@
 
         let device = null;
 
-        // --- GitHub Repository Configuration ---
         const GITHUB_USER = "renebohne";
         const GITHUB_REPO = "drink_crafter";
+
+        const manifests = {
+            esp32dev_8_channel: [
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/bootloader.bin`, offset: 0x1000 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/partitions.bin`, offset: 0x8000 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/firmware.bin`, offset: 0x10000 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/littlefs.bin`, offset: 0x290000 }
+            ],
+            xiao_c6_6channel: [
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/bootloader.bin`, offset: 0x0 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/partitions.bin`, offset: 0x8000 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/firmware.bin`, offset: 0x10000 },
+                { path: `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/littlefs.bin`, offset: 0x290000 }
+            ]
+        };
 
         function log(message) {
             const p = document.createElement('p');
@@ -114,16 +128,18 @@
 
             try {
                 const board = boardSelect.value;
-                const firmwareUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/latest/download/firmware-${board}-full.bin`;
+                const manifest = manifests[board];
                 
-                log(`Fetching firmware for ${board}...`);
-                log(`URL: ${firmwareUrl}`);
-
-                const response = await fetch(firmwareUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to download firmware. Status: ${response.status}`);
-                }
-                const firmwareBlob = await response.blob();
+                log(`Fetching manifest for ${board}...`);
+                const files = await Promise.all(
+                    manifest.map(async ({ path, offset }) => {
+                        log(`  - Downloading ${path.split('/').pop()}`);
+                        const response = await fetch(path);
+                        if (!response.ok) throw new Error(`Failed to download ${path}`);
+                        const blob = await response.blob();
+                        return { data: await blob.arrayBuffer(), offset };
+                    })
+                );
 
                 const espTool = await connectButton.getEsptool();
                 const erase = eraseFlashCheckbox.checked;
@@ -133,11 +149,16 @@
                     await espTool.eraseFlash();
                 }
 
-                log('Writing firmware...');
-                await espTool.writeFlash(firmwareBlob, (bytesWritten, totalBytes) => {
-                    const progress = Math.round((bytesWritten / totalBytes) * 100);
-                    flashButton.textContent = `Installing... ${progress}%`;
-                });
+                log('Writing files...');
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const filename = manifest[i].path.split('/').pop();
+                    log(`  - Flashing ${filename} at offset ${file.offset}`);
+                    await espTool.writeFlash(file.data, file.offset, (bytesWritten, totalBytes) => {
+                        const progress = Math.round((bytesWritten / totalBytes) * 100);
+                        flashButton.textContent = `Flashing ${filename}... ${progress}%`;
+                    });
+                }
 
                 log('Installation complete! Device will now reboot.');
                 alert('Drink Crafter has been installed successfully!');
