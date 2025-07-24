@@ -1,0 +1,14 @@
+{
+  "name": "Drink Crafter (ESP32 DevKit)",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "bootloader-esp32dev_8_channel.bin", "offset": 4096 },
+        { "path": "partitions-esp32dev_8_channel.bin", "offset": 32768 },
+        { "path": "firmware-esp32dev_8_channel.bin", "offset": 65536 },
+        { "path": "littlefs.bin", "offset": 2686976 }
+      ]
+    }
+  ]
+}

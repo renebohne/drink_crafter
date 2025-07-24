@@ -1,0 +1,14 @@
+{
+  "name": "Drink Crafter (XIAO C6)",
+  "builds": [
+    {
+      "chipFamily": "ESP32-C6",
+      "parts": [
+        { "path": "bootloader-xiao_c6_6channel.bin", "offset": 0 },
+        { "path": "partitions-xiao_c6_6channel.bin", "offset": 32768 },
+        { "path": "firmware-xiao_c6_6channel.bin", "offset": 65536 },
+        { "path": "littlefs.bin", "offset": 2686976 }
+      ]
+    }
+  ]
+}

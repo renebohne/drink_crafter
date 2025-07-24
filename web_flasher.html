@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Crafter - Web Flasher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+        }
+        .log-entry {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body class="text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg mx-auto bg-gray-900 rounded-2xl shadow-2xl p-6 md:p-8">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-400">Drink Crafter</h1>
+            <p class="text-gray-400">Web Flasher Utility</p>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Board Selection -->
+            <div>
+                <label for="board-select" class="block text-sm font-medium text-gray-300 mb-1">1. Select your board</label>
+                <select id="board-select" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="esp32dev_8_channel">ESP32 DevKit (8-Channel)</option>
+                    <option value="xiao_c6_6channel">XIAO ESP32-C6 (6-Channel)</option>
+                </select>
+            </div>
+
+            <!-- Connect Button -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">2. Install Drink Crafter</label>
+                <esp-web-install-button id="install-button" class="w-full">
+                    <button slot="activate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition">Install</button>
+                    <button slot="unsupported" class="w-full bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed">Unsupported Browser</button>
+                    <button slot="error" class="w-full bg-red-600 text-white font-semibold py-2.5 px-4 rounded-lg">Error</button>
+                </esp-web-install-button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/esp-web-tools@9.4.3/dist/web/install-button.js?module"></script>
+    <script>
+        const installButton = document.getElementById('install-button');
+        const boardSelect = document.getElementById('board-select');
+
+        function updateManifestPath() {
+            const board = boardSelect.value;
+            // The manifest path is now relative to this HTML file's location on GitHub Pages.
+            const manifestUrl = `release_assets/manifest-${board}.json`;
+            installButton.manifest = manifestUrl;
+        }
+
+        boardSelect.addEventListener('change', updateManifestPath);
+        
+        // Set the initial manifest path when the page loads
+        window.onload = updateManifestPath;
+    </script>
+</body>
+</html>
